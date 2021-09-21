@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,7 +21,15 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])
+    ->name('home');
 
 // Subject
-Route::resource('subject', SubjectController::class);
+Route::resource('subject', SubjectController::class)
+    ->except('show');
+
+// Task
+Route::get('/task/{task}/delete', [TaskController::class, 'delete'])
+    ->name('task.delete');
+Route::resource('task', TaskController::class)
+    ->except('show');

@@ -42,6 +42,11 @@ class SubjectController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required|max:255',
+            'color' => 'nullable'
+        ]);
+
         $subject = new Subject();
         $subject->name = $request->input('name');
         $subject->user_id = auth()->user()->id;
@@ -65,7 +70,7 @@ class SubjectController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param int $id
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function edit(int $id)
     {
@@ -91,7 +96,7 @@ class SubjectController extends Controller
     {
         // TODO Validate form
         $request->validate([
-            'name' => 'required|min:1|max:255',
+            'name' => 'required|max:255',
             'color' => 'nullable'
         ]);
 
@@ -112,6 +117,7 @@ class SubjectController extends Controller
      */
     public function destroy(Request $request)
     {
+        // Todo needs validation
         Subject::destroy($request->input('id'));
 
         return View('home');
