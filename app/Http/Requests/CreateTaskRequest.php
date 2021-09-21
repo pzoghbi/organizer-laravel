@@ -29,11 +29,13 @@ class CreateTaskRequest extends FormRequest
         $task_types = ['assignment', 'exam', 'reminder'];
 
         return [
-            'details' => 'required|max:1024',
+            'title' => 'required|max:256',
+            'details' => 'nullable|max:1024',
             'type' => [
                 Rule::in($task_types)
             ],
             'subject_id' => [
+                'required',
                 Rule::in($my_subjects)
             ],
             'datetime' => 'required|after_or_equal:today'

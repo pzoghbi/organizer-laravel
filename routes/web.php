@@ -31,5 +31,4 @@ Route::resource('subject', SubjectController::class)
 // Task
 Route::get('/task/{task}/delete', [TaskController::class, 'delete'])
     ->name('task.delete');
-Route::resource('task', TaskController::class)
-    ->except('show');
+Route::resource('task', TaskController::class);

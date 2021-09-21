@@ -38,7 +38,7 @@ class SubjectController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
@@ -52,7 +52,7 @@ class SubjectController extends Controller
         $subject->user_id = auth()->user()->id;
         $subject->save();
 
-        return redirect('subject.index');
+        return redirect()->route('subject.index');
     }
 
     /**
@@ -104,22 +104,20 @@ class SubjectController extends Controller
         $subject->color = $request->input('color');
         $subject->save();
 
-        $subjects = Subject::where('user_id', auth()->user()->id)->get();
-
-        return $this->index();
+        return redirect()->route('subject.index');
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int $id
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Request $request)
+    public function destroy(Subject $subject)
     {
         // Todo needs validation
-        Subject::destroy($request->input('id'));
+        Subject::destroy($subject->id);
 
-        return View('home');
+        return redirect()->route('subject.index');
     }
 }

@@ -10,6 +10,11 @@ use Illuminate\Validation\Rule;
 
 class TaskController extends Controller
 {
+    public function __construct()
+    {
+        return $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -18,9 +23,11 @@ class TaskController extends Controller
     public function index()
     {
         $tasks = Task::where('user_id', auth()->user()->id)->get();
+        $subjects = Subject::where('user_id', auth()->user()->id)->pluck('name', 'id')->all();
 
         return View('task.index')
-            ->with('tasks', $tasks);
+            ->with('tasks', $tasks)
+            ->with('subjects', $subjects);
     }
 
     /**
@@ -40,30 +47,35 @@ class TaskController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(CreateTaskRequest $request)
     {
         $task = new Task();
         $task->user_id = auth()->user()->id;
-        $task->subject_id = $request->input('subject_id');
+        $task->title = $request->input('title');
         $task->details = $request->input('details');
+        $task->subject_id = $request->input('subject_id');
         $task->type = $request->input('type');
         $task->datetime = $request->input('datetime');
         $task->save();
 
-        return $this->index();
+        return redirect()->route('task.index');
     }
 
     /**
      * Display the specified resource.
      *
      * @param  \App\Models\Task  $task
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function show(Task $task)
     {
-        //
+        // Get subject name
+        $task->subject_name = Subject::find($task->subject_id)->pluck('name')->first();
+
+        return View('task.show')
+            ->with('task', $task);
     }
 
     /**
@@ -88,17 +100,18 @@ class TaskController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Task  $task
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(CreateTaskRequest $request, Task $task)
     {
+        $task->title = $request->input('title');
         $task->details = $request->input('details');
         $task->subject_id = $request->input('subject_id');
         $task->type = $request->input('type');
         $task->datetime = $request->input('datetime');
         $task->update();
 
-        return $this->index();
+        return redirect()->route('task.index');
     }
 
     /**
@@ -115,17 +128,17 @@ class TaskController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\Task  $task
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Task $task)
     {
-        // Check if the task is user's
+        // Check if the task is the user's
         $my_tasks = Task::where('user_id', auth()->user()->id)
             ->pluck('id')->toArray();
         abort_unless(in_array($task->id, $my_tasks), 403);
 
         Task::destroy($task->id);
 
-        return $this->index();
+        return redirect()->route('task.index');
     }
 }
