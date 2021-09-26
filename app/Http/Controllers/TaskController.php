@@ -22,9 +22,21 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Task::where('user_id', auth()->user()->id)->get();
-        $subjects = Subject::where('user_id', auth()->user()->id)->pluck('name', 'id')->all();
+        // Get the first 10 tasks that need to be done
+        // contains, each
+        $tasks = Task::where('user_id', auth()->user()->id)
+            ->orderBy('datetime')
+            ->take(10)->get()
+            ->filter(function ($task) {
+                return date('W', strtotime($task->datetime)) <= date('W', strtotime('+1 week'));
+            });
 
+        // Cut the second 5 tasks (after 5th index)
+        $tasks_next = $tasks->splice(10);
+
+        // take, [splice], takeWhile, forPage
+
+        $subjects = Subject::where('user_id', auth()->user()->id)->pluck('name', 'id')->all();
         return View('task.index')
             ->with('tasks', $tasks)
             ->with('subjects', $subjects);
