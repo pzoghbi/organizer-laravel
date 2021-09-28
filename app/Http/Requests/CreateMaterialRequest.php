@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Category;
 use App\Models\Subject;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,20 +26,19 @@ class CreateMaterialRequest extends FormRequest
      */
     public function rules()
     {
-        $this_user_subjects = Subject::where('user_id', auth()->user()->id)->pluck('id')->toArray();
-
-        dd($this_user_subjects);
+        // This user subjects
+        $subjects = Subject::where('user_id', auth()->user()->id)->pluck('id')->toArray();
+        $categories = Category::where('user_id', auth()->user()->id)->pluck('id')->toArray();
 
         return [
-            'path' => 'required',
-            'name' => 'required',
-            'details' => 'required',
-            'user_id' => 'required',
             'subject_id' => [
                 'required',
-                Rule::in($this_user_subjects)
+                Rule::in($subjects)
             ],
-            'categories'
+            'categories' => [
+                'required',
+                Rule::in($categories)
+            ]
         ];
     }
 }

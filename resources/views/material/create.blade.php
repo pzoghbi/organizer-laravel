@@ -10,7 +10,8 @@
             <!-- Predmet, kategorija, detalji, file -->
             <!-- Name (optional) -->
             <div class="input-group mb-3">
-                <input type="file" name="file" id="material-file" class="form-control" form="material_store">
+                <input type="file" name="file" id="material-file" class="form-control" form="material_store"
+                       value="{{ old('file') }}">
             </div>
 
             <div class="form-group mb-3">
@@ -24,7 +25,8 @@
                 <select name="subject_id" id="material-subject" class="form-select" form="material_store">
                     <option value="" disabled selected>Choose a subject</option>
                     @foreach($subjects as $subject)
-                        <option value="{{ $subject->id }}">{{ $subject->name }}</option>
+                        <option value="{{ $subject->id }}"
+                            {{ old('subject_id') == $subject->id ? 'selected' : '' }}>{{ $subject->name }}</option>
                     @endforeach
                 </select>
             </div>

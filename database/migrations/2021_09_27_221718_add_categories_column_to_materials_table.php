@@ -14,7 +14,7 @@ class AddCategoriesColumnToMaterialsTable extends Migration
     public function up()
     {
         Schema::table('materials', function (Blueprint $table) {
-            $table->text('categories');
+            $table->text('categories')->nullable();
         });
     }
 
