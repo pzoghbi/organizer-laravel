@@ -43,8 +43,9 @@
         <div class="form-group mb-3">
             <div class="btn-group d-inline-block">
                 @foreach($categories as $category)
-                    <input type="checkbox" class="btn-check" name="category" form="material_store"
-                           id="material-category-{{ $category->id }}">
+                    <input type="checkbox" class="btn-check" name="categories[]" form="material_store"
+                        id="material-category-{{ $category->id }}" value="{{ $category->id }}"
+                        {{ in_array($category->id, $material->categories) ? 'checked' : ''}}>
                     <label for="material-category-{{ $category->id }}"
                            class="btn btn-outline-secondary me-1 mb-3">{{ $category->name }}</label>
                 @endforeach

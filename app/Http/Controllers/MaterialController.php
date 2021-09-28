@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateMaterialRequest;
+use App\Models\Category;
 use App\Models\Material;
 use App\Models\Subject;
 use Illuminate\Http\Request;
@@ -36,16 +37,7 @@ class MaterialController extends Controller
     public function create()
     {
         $subjects = Subject::where('user_id', auth()->user()->id)->get();
-
-        $categories = [
-            (object) ['id' => '3', 'name' => 'Kolokvij 1'],
-            (object) ['id' => '5', 'name' => 'Kolokvij 2'],
-            (object) ['id' => '4', 'name' => 'Staro'],
-            (object) ['id' => '7', 'name' => 'Novo'],
-            (object) ['id' => '33', 'name' => 'Crno'],
-            (object) ['id' => '8', 'name' => 'Plavo'],
-            (object) ['id' => '6', 'name' => 'Ljubicasto'],
-        ];
+        $categories = Category::where('user_id', auth()->user()->id)->get();
 
         return View('material.create')
             ->with('subjects', $subjects)
@@ -64,11 +56,12 @@ class MaterialController extends Controller
 
         $file = $request->file('file');
         $material->path = $file->store('materials');
+        $material->user_id = auth()->user()->id;
+
         $material->name = $file->getClientOriginalName();
         $material->details = $request->input('details');
-        $material->user_id = auth()->user()->id;
         $material->subject_id = $request->input('subject_id');
-//        $material->categories = $request->input('categories');
+        $material->categories = implode(",", $request->input('categories'));
         $material->save();
 
         return redirect()->route('material.index');
@@ -78,11 +71,17 @@ class MaterialController extends Controller
      * Display the specified resource.
      *
      * @param  \App\Models\Material  $material
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function show(Material $material)
     {
-        return View('material.show')->with('material', $material);
+        $material->categories = explode(",", $material->categories);
+
+        $categories = Category::whereIn('id', $material->categories)->get();
+
+        return View('material.show')
+            ->with('material', $material)
+            ->with('categories', $categories);
     }
 
     /**
@@ -112,24 +111,16 @@ class MaterialController extends Controller
     public function edit(Material $material)
     {
         $subjects = Subject::where('user_id', auth()->user()->id)->get();
-
-        $categories = [
-            (object) ['id' => '3', 'name' => 'Kolokvij 1'],
-            (object) ['id' => '5', 'name' => 'Kolokvij 2'],
-            (object) ['id' => '4', 'name' => 'Staro'],
-            (object) ['id' => '7', 'name' => 'Novo'],
-            (object) ['id' => '33', 'name' => 'Crno'],
-            (object) ['id' => '8', 'name' => 'Plavo'],
-            (object) ['id' => '6', 'name' => 'Ljubicasto'],
-        ];
+        $categories = Category::where('user_id', auth()->user()->id)->get();
 
         // Todo
-//        $material_categories = $material->categories;
+        $material->categories = explode(",", $material->categories);
 
         return View('material.edit')
             ->with('material', $material)
             ->with('subjects', $subjects)
             ->with('categories', $categories);
+
     }
 
     /**
@@ -141,20 +132,21 @@ class MaterialController extends Controller
      */
     public function update(Request $request, Material $material)
     {
-        $subjects = Subject::where('user_id', auth()->user()->id)
-            ->pluck('id')->toArray();
+        $subjects = Subject::where('user_id', auth()->user()->id)->pluck('id')->toArray();
+        $categories = Category::where('user_id', auth()->user()->id)->pluck('id')->toArray();
 
         // Todo validate
         $request->validate([
             'file-name' => 'required',
             'details' => 'max:1024',
-            'subject_id' => ['required', Rule::in($subjects)]
+            'subject_id' => ['required', Rule::in($subjects)],
+            'categories' => [Rule::in($categories)]
         ]);
 
         $material->name = $request->input('file-name');
         $material->details = $request->input('details');
         $material->subject_id = $request->input('subject_id');
-        // Todo categories update
+        $material->categories = implode(",", $request->input('categories'));
         $material->save();
 
         return redirect()->route('material.show', $material);

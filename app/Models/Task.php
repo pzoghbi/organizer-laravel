@@ -18,5 +18,6 @@ class Task extends Model
         'subject_id',
         'type',
         'datetime',
+        'active'
     ];
 }

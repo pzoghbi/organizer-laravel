@@ -29,6 +29,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::resource('subject', SubjectController::class)->except('show');
 
 // Task
+Route::patch('/task/{task}/complete', [TaskController::class, 'complete'])->name('task.complete');
 Route::get('/task/{task}/delete', [TaskController::class, 'delete'])->name('task.delete');
 Route::resource('task', TaskController::class);
 

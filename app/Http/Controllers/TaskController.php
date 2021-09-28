@@ -6,6 +6,7 @@ use App\Http\Requests\CreateTaskRequest;
 use App\Models\Subject;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 
 class TaskController extends Controller
@@ -25,19 +26,30 @@ class TaskController extends Controller
         // Get the first 10 tasks that need to be done
         // contains, each
         $tasks = Task::where('user_id', auth()->user()->id)
+//            ->where('active', true)
             ->orderBy('datetime')
-            ->take(10)->get()
+            ->get()
             ->filter(function ($task) {
-                return date('W', strtotime($task->datetime)) <= date('W', strtotime('+1 week'));
-            });
+                return date('W', strtotime($task->datetime)) > date('W', strtotime('-1 week'));
+            }); // filters tasks that are past due (optional TODO make this an option)
+
+        $this_week = $tasks->filter(function ($task) {
+            return date('W', strtotime($task->datetime)) == date('W', strtotime('this week'));
+        });
+
+        $two_weeks = $tasks->filter(function ($task) {
+            return date('W', strtotime($task->datetime)) <= date('W', strtotime('+1 week'));
+        });
 
         // Cut the second 5 tasks (after 5th index)
-        $tasks_next = $tasks->splice(10);
+//        $tasks_next = $tasks->splice(10);
 
         // take, [splice], takeWhile, forPage
 
         $subjects = Subject::where('user_id', auth()->user()->id)->pluck('name', 'id')->all();
         return View('task.index')
+            ->with('this_week', $this_week)
+            ->with('two_weeks', $two_weeks)
             ->with('tasks', $tasks)
             ->with('subjects', $subjects);
     }
@@ -152,5 +164,16 @@ class TaskController extends Controller
         Task::destroy($task->id);
 
         return redirect()->route('task.index');
+    }
+
+    public function complete(Task $task)
+    {
+        $task = Task::where('user_id', auth()->user()->id)
+            ->where('id', $task->id)->firstOrFail();
+
+        $task->active = !$task->active;
+        $task->save();
+
+        return back();
     }
 }

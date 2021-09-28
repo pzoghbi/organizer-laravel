@@ -17,6 +17,6 @@ class Material extends Model
         'details',
         'user_id',
         'subject_id',
-//        'categories'
+        'categories'
     ];
 }

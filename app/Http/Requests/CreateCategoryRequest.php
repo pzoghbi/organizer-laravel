@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Subject;
+use App\Models\Category;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class CreateMaterialRequest extends FormRequest
+class CreateCategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,20 +25,14 @@ class CreateMaterialRequest extends FormRequest
      */
     public function rules()
     {
-        $this_user_subjects = Subject::where('user_id', auth()->user()->id)->pluck('id')->toArray();
-
-        dd($this_user_subjects);
-
         return [
-            'path' => 'required',
-            'name' => 'required',
-            'details' => 'required',
-            'user_id' => 'required',
-            'subject_id' => [
+            'name' => [
                 'required',
-                Rule::in($this_user_subjects)
-            ],
-            'categories'
+                'max:50',
+                Rule::unique('categories', 'name')->where(function ($query) {
+                    return $query->where('user_id', auth()->user()->id);
+                }),
+            ]
         ];
     }
 }
