@@ -54,7 +54,6 @@ class MaterialController extends Controller
     {
         $material = new Material();
 
-
         // todo files table. make file optional, not required,
         // todo maybe students just want to write down some notes
         $file = $request->file('file');
@@ -64,6 +63,8 @@ class MaterialController extends Controller
         $material->name = $file->getClientOriginalName();
         $material->details = $request->input('details');
         $material->subject_id = $request->input('subject_id');
+
+        // todo fix error
         $material->categories = implode(",", $request->input('categories', []));
         $material->save();
 
