@@ -7,10 +7,6 @@ use Illuminate\Http\Request;
 
 class SubjectController extends Controller
 {
-    function __construct() {
-        return $this->middleware('auth');
-    }
-
     /**
      * Display a listing of the resource.
      *

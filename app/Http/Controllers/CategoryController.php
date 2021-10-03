@@ -42,7 +42,7 @@ class CategoryController extends Controller
 
         $category->save();
 
-        return back()->withInput();
+        return redirect()->back();
     }
 
     /**

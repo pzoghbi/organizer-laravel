@@ -23,6 +23,8 @@ class HomeController extends Controller
      */
     public function index()
     {
+        // Check if the user has set up Studies
+        // Check if the user has set up schedule
         return view('home');
     }
 }

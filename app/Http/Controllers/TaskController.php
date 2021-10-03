@@ -11,11 +11,6 @@ use Illuminate\Validation\Rule;
 
 class TaskController extends Controller
 {
-    public function __construct()
-    {
-        return $this->middleware('auth');
-    }
-
     /**
      * Display a listing of the resource.
      *

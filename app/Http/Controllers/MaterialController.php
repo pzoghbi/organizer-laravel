@@ -11,11 +11,6 @@ use Illuminate\Validation\Rule;
 
 class MaterialController extends Controller
 {
-    public function __construct()
-    {
-        return $this->middleware('auth');
-    }
-
     /**
      * Display a listing of the resource.
      *

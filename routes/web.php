@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\LectureController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
@@ -17,28 +19,32 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::middleware('auth')->group(function () {
+    Route::get('/', [App\Http\Controllers\HomeController::class, 'index']);
 
-// Subject
-Route::resource('subject', SubjectController::class)->except('show');
+    // Subject
+    Route::resource('subject', SubjectController::class)->except('show');
 
-// Task
-Route::patch('/task/{task}/complete', [TaskController::class, 'complete'])->name('task.complete');
-Route::get('/task/{task}/delete', [TaskController::class, 'delete'])->name('task.delete');
-Route::resource('task', TaskController::class);
+    // Task
+    Route::patch('/task/{task}/complete', [TaskController::class, 'complete'])->name('task.complete');
+    Route::get('/task/{task}/delete', [TaskController::class, 'delete'])->name('task.delete');
+    Route::resource('task', TaskController::class);
 
-// Material
-Route::get('/material/{material}/delete', [MaterialController::class, 'delete'])->name('material.delete');
-Route::get('/material/subject/{subject_id}', [MaterialController::class, 'subject'])
-    ->name('material.subject');
-Route::resource('material', MaterialController::class);
+    // Material
+    Route::get('/material/{material}/delete', [MaterialController::class, 'delete'])->name('material.delete');
+    Route::get('/material/subject/{subject_id}', [MaterialController::class, 'subject'])->name('material.subject');
+    Route::resource('material', MaterialController::class);
 
-// Category
-Route::resource('category', CategoryController::class);
+    // Category
+    Route::resource('category', CategoryController::class);
+
+    // Schedule
+    Route::resource('schedule', ScheduleController::class);
+
+    // Lectures
+    Route::post('lecture/{schedule_id}', [LectureController::class, 'store'])->name('lecture.store');
+    Route::resource('lecture', LectureController::class)->except('store');
+});
 
