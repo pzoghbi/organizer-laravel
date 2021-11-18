@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
     @include('layouts.errors')
-    <form action="{{ route('task.update', $task) }}" class="col-5" method="post">
+    <form action="{{ route('task.update', $task) }}" method="post">
         @method('PUT')
         @csrf
 
@@ -23,7 +23,7 @@
         <div class="form-group mb-3">
             <label for="task-type">Type</label>
             <select name="type" id="task-type" class="form-control">
-                @foreach($task_types as $task_type)
+                @foreach(['reminder', 'assignment', 'exam'] as $task_type)
                     <option value="{{ $task_type }}" {{ $task->type === $task_type ? 'selected' : ''}}>
                         {{ ucfirst($task_type) }}
                     </option>
@@ -35,7 +35,7 @@
         <div class="input-group mb-3">
             <label class="input-group-text" for="task-subject">Subject</label>
             <select name="subject_id" id="task-subject" class="form-select">
-                @foreach($subjects as $subject)
+                @foreach(auth()->user()->subjects as $subject)
                     <option value="{{ $subject->id }}">{{ $subject->name }}</option>
                 @endforeach
             </select>

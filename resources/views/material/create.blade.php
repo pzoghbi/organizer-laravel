@@ -11,7 +11,7 @@
             <!-- Name (optional) -->
             <div class="input-group mb-3">
                 <input type="file" name="file" id="material-file" class="form-control" form="material_store"
-                       value="{{ old('file') }}">
+                       required value="{{ old('file') }}">
             </div>
 
             <div class="form-group mb-3">
@@ -24,7 +24,7 @@
                 <label for="material-subject" class="input-group-text">Subject</label>
                 <select name="subject_id" id="material-subject" class="form-select" form="material_store">
                     <option value="" disabled selected>Choose a subject</option>
-                    @foreach($subjects as $subject)
+                    @foreach(auth()->user()->subjects as $subject)
                         <option value="{{ $subject->id }}"
                             {{ old('subject_id') == $subject->id ? 'selected' : '' }}>{{ $subject->name }}</option>
                     @endforeach
@@ -34,7 +34,7 @@
             <label class="form-label">Categories</label>
             <div class="form-group mb-3">
                 <div class="btn-group d-inline-block">
-                    @foreach($categories as $category)
+                    @foreach(auth()->user()->categories as $category)
                         <input type="checkbox" class="btn-check" name="categories[]" form="material_store"
                                id="material-category-{{ $category->id }}" value="{{ $category->id }}">
                         <label for="material-category-{{ $category->id }}"

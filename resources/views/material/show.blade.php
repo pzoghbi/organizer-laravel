@@ -15,7 +15,7 @@
     <label class="form-label">Categories</label>
     <div class="form-group mb-3">
         <div class="btn-group d-inline-block">
-            @foreach($categories as $category)
+            @foreach($material->categories() as $category)
                 <input type="checkbox" class="btn-check" name="categories[]" form="material_store"
                        id="material-category-{{ $category->id }}" value="{{ $category->id }}" disabled>
                 <label for="material-category-{{ $category->id }}"

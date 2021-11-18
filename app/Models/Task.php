@@ -13,11 +13,17 @@ class Task extends Model
 
     protected $fillable = [
         'user_id',
+        'subject_id',
+        'todo_id',
         'title',
         'details',
-        'subject_id',
         'type',
         'datetime',
         'active'
     ];
+
+    public function subject()
+    {
+        return $this->belongsTo(\App\Models\Subject::class, 'subject_id');
+    }
 }

@@ -18,9 +18,12 @@ class CreateMaterialsTable extends Migration
             $table->string('path')->unique();
             $table->string('name');
             $table->string('details', '1024')->nullable();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('subject_id')->constrained('subjects');
-//            $table->foreignId('categories')->constrained('categories');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('subject_id')->constrained('subjects')->onDelete('cascade');
+            $table->text('categories')->nullable();
+            $table->timestamp('visited_at')->default(now());
+            $table->softDeletes();
+            $table->timestamps();
         });
     }
 
@@ -32,5 +35,6 @@ class CreateMaterialsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('materials');
+//        $table->dropSoftDeletes();
     }
 }

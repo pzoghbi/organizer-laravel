@@ -32,7 +32,7 @@
             <label class="input-group-text" for="material-subject">Subject</label>
             <select class="form-select" form="material_store" id="material-subject" name="subject_id">
                 <option disabled selected value="">Choose a subject</option>
-                @foreach($subjects as $subject)
+                @foreach(auth()->user()->subjects as $subject)
                     <option value="{{ $subject->id }}"
                         {{ $material->subject_id === $subject->id ? 'selected' : '' }}>{{ $subject->name }}</option>
                 @endforeach
@@ -42,10 +42,10 @@
         <label class="form-label">Categories</label>
         <div class="form-group mb-3">
             <div class="btn-group d-inline-block">
-                @foreach($categories as $category)
+                @foreach(auth()->user()->categories as $category)
                     <input type="checkbox" class="btn-check" name="categories[]" form="material_store"
                         id="material-category-{{ $category->id }}" value="{{ $category->id }}"
-                        {{ in_array($category->id, $material->categories) ? 'checked' : ''}}>
+                        {{ in_array($category->id, $material->categories()->pluck('id')->toArray()) ? 'checked' : ''}}>
                     <label for="material-category-{{ $category->id }}"
                            class="btn btn-outline-secondary me-1 mb-3">{{ $category->name }}</label>
                 @endforeach

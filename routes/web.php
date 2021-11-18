@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', [App\Http\Controllers\HomeController::class, 'index']);
+    Route::get('/', [App\Http\Controllers\HomeController::class, 'showDashboard'])->name('home');
 
     // Subject
     Route::resource('subject', SubjectController::class)->except('show');
@@ -34,13 +34,18 @@ Route::middleware('auth')->group(function () {
 
     // Material
     Route::get('/material/{material}/delete', [MaterialController::class, 'delete'])->name('material.delete');
-    Route::get('/material/subject/{subject_id}', [MaterialController::class, 'subject'])->name('material.subject');
+    Route::get('/material/trash', [MaterialController::class, 'trash'])->name('material.trash');
+    Route::get('/material/trash/empty', [MaterialController::class, 'emptyTrash'])->name('material.emptyTrash');
+    Route::get('/material/list/{subject_id}', [MaterialController::class, 'listBySubject'])->name('material.list');
+    Route::post('/material/{material}/restore', [MaterialController::class, 'restore'])->name('material.restore');
+    Route::delete('/material/{material}/softDelete', [MaterialController::class, 'softDelete'])->name('material.softDelete');
     Route::resource('material', MaterialController::class);
 
     // Category
     Route::resource('category', CategoryController::class);
 
     // Schedule
+    Route::post('schedule/{schedule}', [ScheduleController::class, 'toggleActive'])->name('schedule.active');
     Route::resource('schedule', ScheduleController::class);
 
     // Lectures

@@ -2,118 +2,59 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreSubjectRequest;
+use App\Http\Requests\UpdateSubjectRequest;
 use App\Models\Subject;
+use App\Notifications\TaskReminder;
+use App\Services\SubjectService;
 use Illuminate\Http\Request;
 
 class SubjectController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
-     */
-    public function index()
-    {
-        $subjects = Subject::where('user_id', auth()->user()->id)->get();
+    private $subjectService;
 
-        return View('subject.index')
-            ->with('subjects', $subjects);
+    public function __construct(SubjectService $subjectService)
+    {
+        $this->subjectService = $subjectService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
-     */
+    public function index()
+    {
+        return View('subject.index');
+    }
+
     public function create()
     {
         return View('subject.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function store(Request $request)
+    public function store(StoreSubjectRequest $request)
     {
-        $request->validate([
-            'name' => 'required|max:255',
-            'color' => 'nullable'
-        ]);
-
-        $subject = new Subject();
-        $subject->name = $request->input('name');
-        $subject->user_id = auth()->user()->id;
-        $subject->save();
-
+        $this->subjectService->store($request->validated());
         return redirect()->route('subject.index');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Subject  $subject
-     * @return \Illuminate\Http\Response
-     */
     public function show(Subject $subject)
     {
-        //
+        // TODO list tasks, materials, etc this subject owns
+        // TODO Add properties to this model
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
-    public function edit(int $id)
+    public function edit(Subject $subject)
     {
-        $subject = Subject::where('id', $id)->first();
-
-        // Todo show no access or something
-        if (auth()->user()->id !== $subject->user_id) {
-            return redirect('/');
-        }
-
-        return View('subject.edit')
-            ->with('subject', $subject);
+        $this->subjectService->authorize($subject->id);
+        return View('subject.edit')->with('subject', $subject);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Subject  $subject
-     * @return string
-     */
-    public function update(Request $request, Subject $subject)
+    public function update(UpdateSubjectRequest $request, Subject $subject)
     {
-        // TODO Validate form
-        $request->validate([
-            'name' => 'required|max:255',
-            'color' => 'nullable'
-        ]);
-
-        $subject->name = $request->input('name');
-        $subject->color = $request->input('color');
-        $subject->save();
-
+        $this->subjectService->update($subject, $request->validated());
         return redirect()->route('subject.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function destroy(Subject $subject)
     {
-        // Todo needs validation
-        Subject::destroy($subject->id);
-
+        $this->subjectService->destroy($subject);
         return redirect()->route('subject.index');
     }
 }

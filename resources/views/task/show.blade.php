@@ -1,20 +1,33 @@
 @extends('layouts.app')
 @section('content')
-    <h3 class="h3">{{ $task->title }}</h3>
-    <p>{{ $task->details }}</p>
-    <p class="fs-3 mb-0">{{ date_format(date_create($task->datetime), 'H:i') }}</p>
-    <p>{{ date_format(date_create($task->datetime), 'd-m-y') }}</p>
-    <p class="custom-control-label">{{ $task->subject_name }}</p>
-    <p>{{ $task->active ? 'Active': 'Completed' }}</p>
+    <div
+        class="shadow card mb-1 border-0 border-5 border-start {{ $task->active ? 'border-warning' : 'border-success' }}">
+        <div class="card-header d-flex">
+            <h3 class="h3">{{ $task->title }}</h3>
+            <span
+                class="badge rounded-pill bg-danger ms-auto fs-6 h-100 align-self-center">{{ $task->subject_name }}</span>
+        </div>
 
-    <div class="col-4">
-        <a href="{{ route('task.show', $task) }}" class="btn btn-primary">Show</a>
-        <a href="{{ route('task.edit', $task) }}" class="btn btn-warning">Edit</a>
-        <a href="{{ route('task.delete', $task) }}" class="btn btn-danger">Delete</a>
-        <form id="complete-task-{{ $task->id }}" class="d-inline" action="{{ route('task.complete', $task) }}"
-              method="post">@csrf @method('PATCH')
-            <input class="btn btn-success text-white" type="submit" value="Complete"
-                   form="complete-task-{{ $task->id }}">
-        </form>
+        <div class="card-body">
+            <div class="d-flex fs-4 mb-3">
+                <span>{{ date('H:i', strtotime($task->datetime)) }}</span>
+                <span class="ms-auto">{{ date('d.m.Y', strtotime($task->datetime)) }}</span>
+            </div>
+
+            <p>{{ $task->details }}</p>
+
+            <div class="d-flex gap-2">
+                <form id="complete-task-{{ $task->id }}" class="d-inline" action="{{ route('task.complete', $task) }}"
+                      method="post">@csrf @method('PATCH')
+                    <input class="btn {{ $task->active ? 'btn-success' : 'btn-danger' }} text-white" type="submit"
+                           value="Mark {{ $task->active ? 'complete' : 'incomplete' }}"
+                           form="complete-task-{{ $task->id }}">
+                </form>
+
+                <a href="{{ route('task.edit', $task) }}" class="ms-auto btn btn-warning">Edit</a>
+                <a href="{{ route('task.delete', $task) }}" class="btn btn-outline-danger">Delete</a>
+            </div>
+
+        </div>
     </div>
 @endsection

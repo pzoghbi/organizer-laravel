@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('content')
-    <form action="{{ route('material.destroy', $material) }}">
+    <form action="{{ route('material.softDelete', $material) }}" method="post">
+        @csrf
+        @method('delete')
         <h2 class="h2">
             Are you sure you want to delete <span
                 class="text-danger text-decoration-underline">{{ $material->name }}</span>?

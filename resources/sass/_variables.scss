@@ -1,13 +1,13 @@
 // Body
-$body-bg: #f8fafc;
+$body-bg: #ebebeb;
 
 // Typography
-$font-family-sans-serif: 'Nunito', sans-serif;
+$font-family-sans-serif: 'Open Sans', sans-serif;
 $font-size-base: 0.9rem;
 $line-height-base: 1.6;
 
 // Colors
-$blue: #3490dc;
+$blue: #0094dc;
 $indigo: #6574cd;
 $purple: #9561e2;
 $pink: #f66d9b;
@@ -17,3 +17,10 @@ $yellow: #ffed4a;
 $green: #38c172;
 $teal: #4dc0b5;
 $cyan: #6cb2eb;
+
+
+
+$border-radius-sm: .5rem;
+$border-radius: .75rem;
+$border-radius-lg: 1rem;
+$card-border-radius: $border-radius-lg;

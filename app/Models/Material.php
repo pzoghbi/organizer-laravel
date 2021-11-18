@@ -4,12 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Material extends Model
 {
-    use HasFactory;
-
-    public $timestamps = false;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'path',
@@ -17,6 +16,22 @@ class Material extends Model
         'details',
         'user_id',
         'subject_id',
-        'categories'
+        'categories',
+        'visited_at'
     ];
+
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class);
+    }
+
+    /**
+     * Gets categories as a collection
+     *
+     * @return Category
+     */
+    public function categories()
+    {
+        return Category::whereIn('id', explode(",", $this->categories))->get();
+    }
 }

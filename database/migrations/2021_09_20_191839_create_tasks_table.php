@@ -15,12 +15,13 @@ class CreateTasksTable extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('subject_id')->constrained('subjects');
+            $table->boolean('active')->default(true);
             $table->string('title');
             $table->string('details')->nullable();
             $table->string('type');
             $table->dateTime('datetime');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('subject_id')->constrained('subjects')->onDelete('cascade');
         });
     }
 

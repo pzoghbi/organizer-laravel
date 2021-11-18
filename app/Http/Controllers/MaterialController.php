@@ -2,175 +2,153 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateMaterialRequest;
+use App\Http\Requests\SoftDeleteMaterialRequest;
+use App\Http\Requests\StoreMaterialRequest;
+use App\Http\Requests\UpdateMaterialRequest;
 use App\Models\Category;
 use App\Models\Material;
 use App\Models\Subject;
+use App\Services\MaterialService;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 
 class MaterialController extends Controller
 {
+    private $materialService;
+
+    public function __construct(MaterialService $materialService)
+    {
+        $this->materialService = $materialService;
+    }
+
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return \Illuminate\Contracts\View\View
      */
     public function index()
     {
-        $subjects = Subject::where('user_id', auth()->user()->id)->get();
-
-        return View('material.index')
-            ->with('subjects', $subjects);
+        $subjects = $this->materialService->index();
+        return View('material.index')->with('subjects', $subjects);
     }
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return \Illuminate\Contracts\View\View
      */
     public function create()
     {
-        $subjects = Subject::where('user_id', auth()->user()->id)->get();
-        $categories = Category::where('user_id', auth()->user()->id)->get();
-
-        return View('material.create')
-            ->with('subjects', $subjects)
-            ->with('categories', $categories);
+        return View('material.create');
     }
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(CreateMaterialRequest $request)
+    public function store(StoreMaterialRequest $request)
     {
-        $material = new Material();
-
-        // todo files table. make file optional, not required,
-        // todo maybe students just want to write down some notes
-        $file = $request->file('file');
-        $material->path = $file->store('materials');
-        $material->user_id = auth()->user()->id;
-
-        $material->name = $file->getClientOriginalName();
-        $material->details = $request->input('details');
-        $material->subject_id = $request->input('subject_id');
-
-        // todo fix error
-        $material->categories = implode(",", $request->input('categories', []));
-        $material->save();
-
+        $this->materialService->store($request->validated());
         return redirect()->route('material.index');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Material  $material
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @param \App\Models\Material $material
+     * @return \Illuminate\Contracts\View\View
      */
     public function show(Material $material)
     {
-        $material->categories = explode(",", $material->categories);
-
-        $categories = Category::whereIn('id', $material->categories)->get();
-
-        return View('material.show')
-            ->with('material', $material)
-            ->with('categories', $categories);
+        $material = $this->materialService->show($material);
+        return View('material.show')->with('material', $material);
     }
 
     /**
      * Display the grouped resources.
      *
-     * @param  \App\Models\Material  $material
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @param \App\Models\Material $material
+     * @return \Illuminate\Contracts\View\View
      */
-    public function subject(int $subject_id)
+    public function listBySubject(int $subject_id)
     {
-        $materials = Material::where('user_id', auth()->user()->id)
-            ->where('subject_id', $subject_id)->get();
-
-        $subject = Subject::where('id', $subject_id)->first();
-
-        return View('material.list')
-            ->with('subject', $subject)
-            ->with('materials', $materials);
+        $materials = $this->materialService->listBySubject($subject_id);
+        return View('material.list')->with('materials', $materials);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Material  $material
+     * @param \App\Models\Material $material
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function edit(Material $material)
     {
-        $subjects = Subject::where('user_id', auth()->user()->id)->get();
-        $categories = Category::where('user_id', auth()->user()->id)->get();
-
-        // Todo
-        $material->categories = explode(",", $material->categories);
-
-        return View('material.edit')
-            ->with('material', $material)
-            ->with('subjects', $subjects)
-            ->with('categories', $categories);
-
+        $material = $this->materialService->edit($material);
+        return View('material.edit')->with('material', $material);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Material  $material
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Material $material
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, Material $material)
+    public function update(Material $material, UpdateMaterialRequest $request)
     {
-        $subjects = Subject::where('user_id', auth()->user()->id)->pluck('id')->toArray();
-        $categories = Category::where('user_id', auth()->user()->id)->pluck('id')->toArray();
-
-        // Todo validate
-        $request->validate([
-            'file-name' => 'required',
-            'details' => 'max:1024',
-            'subject_id' => ['required', Rule::in($subjects)],
-            'categories' => [Rule::in($categories)]
-        ]);
-
-        $material->name = $request->input('file-name');
-        $material->details = $request->input('details');
-        $material->subject_id = $request->input('subject_id');
-        $material->categories = implode(",", $request->input('categories'));
-        $material->save();
-
+        $material = $this->materialService->update($material, $request->validated());
         return redirect()->route('material.show', $material);
-
     }
 
     /**
      * Show the form for deleting the specified resource.
      *
-     * @param  \App\Models\Material  $material
+     * @param \App\Models\Material $material
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function delete(Material $material)
     {
+        $this->materialService->authorize($material->id, 'No permission to delete this material');
         return View('material.delete')->with('material', $material);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Material  $material
-     * @return \Illuminate\Http\Response
+     * @param \App\Models\Material $material
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Material $material)
-    {
 
+    public function softDelete(Material $material)
+    {
+        $deleted = $this->materialService->softDelete($material);
+        if ($deleted) request()->session()->flash('message', 'Material successfully moved to trash.');
+        return redirect()->route('material.list', $material->subject_id);
+    }
+
+    public function trash()
+    {
+        return View('material.trash');
+    }
+
+    public function restore(int $material_id)
+    {
+        $material = $this->materialService->restore($material_id);
+        request()->session()->flash('message', $material->name . ' was successfully restored.');
+        return redirect()->route('material.list', $material->subject_id);
+    }
+
+    public function destroy(int $material_id)
+    {
+        $material = $this->materialService->destroy($material_id);
+        if ($material) request()->session()->flash('message', 'Success');
+        else request()->session()->flash('error', 'Destroying failed.');
+        return redirect()->route('material.list', $material->subject_id);
+    }
+
+    public function emptyTrash()
+    {
+        $this->materialService->emptyTrash();
+        return redirect()->route('material.index');
     }
 }

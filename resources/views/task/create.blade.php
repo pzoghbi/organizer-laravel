@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
     @include('layouts.errors')
-    <form action="{{ route('task.store') }}" class="col-5" method="post">
+    <form action="{{ route('task.store') }}" method="post">
         @csrf
         <div class="form-group mb-3">
             <label for="task-title">Title</label>
@@ -28,7 +28,7 @@
             <label class="input-group-text" for="task-subject">Subject</label>
             <select name="subject_id" id="task-subject" class="form-select" required>
                 <option value="" selected disabled>Choose a subject</option>
-                @foreach($subjects as $subject)
+                @foreach(auth()->user()->subjects as $subject)
                     <option value="{{ $subject->id }}" {{ old('subject_id' ? 'selected': '') }}>
                         {{ $subject->name }}
                     </option>
