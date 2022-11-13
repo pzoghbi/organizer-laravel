@@ -10,6 +10,7 @@ use App\Notifications\TaskReminder;
 use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class TaskService
 {
@@ -45,13 +46,19 @@ class TaskService
                 return $this->index(1);
         }
 
+        foreach($tasks as $task) {
+            $task->due = now() > $task->datetime;
+            $task->datetime = \Carbon\Carbon::parse($task->datetime)->shortRelativeDiffForHumans();
+        }
+
         return $tasks;
     }
 
     public function show($task)
     {
         $this->authorize($task->id);
-        $task->subject_name = Subject::find($task->subject_id)->pluck('name')->first();
+        $task->subject = $task->subject;
+        $task->type = ucfirst($task->type);
         return $task;
     }
 
@@ -66,7 +73,6 @@ class TaskService
         $task->type = $data['type'];
         $task->datetime = $data['datetime'];
         $task->save();
-
         // Reminders //
         $timezone = $user->timezone;
 
@@ -94,7 +100,7 @@ class TaskService
         $task->subject_id = $data['subject_id'];
         $task->type = $data['type'];
         $task->datetime = $data['datetime'];
-        $task->update();
+        return $task->update();
     }
 
     public function delete($task)
@@ -106,7 +112,7 @@ class TaskService
     public function destroy($task)
     {
         $this->authorize($task->id);
-        Task::destroy($task->id);
+        return Task::destroy($task->id);
     }
 
     public function complete($task)

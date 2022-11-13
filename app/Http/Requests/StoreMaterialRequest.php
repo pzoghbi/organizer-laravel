@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Category;
 use App\Models\Subject;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class StoreMaterialRequest extends FormRequest
@@ -26,8 +27,10 @@ class StoreMaterialRequest extends FormRequest
      */
     public function rules()
     {
+        Log::debug(request()->all());
         $subjects = Subject::where('user_id', auth()->user()->id)->pluck('id')->toArray();
         $categories = Category::where('user_id', auth()->user()->id)->pluck('id')->toArray();
+        array_push($categories, '');
 
         return [
             'file' => 'required',

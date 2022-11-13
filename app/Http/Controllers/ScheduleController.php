@@ -27,7 +27,7 @@ class ScheduleController extends Controller
     public function index()
     {
         $schedules = $this->scheduleService->index();
-        return View('schedule.index')->with('schedules', $schedules);
+        return response()->json($schedules);
     }
 
     /**

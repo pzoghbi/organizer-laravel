@@ -23,12 +23,24 @@ class MaterialController extends Controller
 
     /**
      * Display a listing of the resource.
-     * @return \Illuminate\Contracts\View\View
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
         $subjects = $this->materialService->index();
-        return View('material.index')->with('subjects', $subjects);
+        $recentMaterials = $this->materialService->getRecentMaterials();
+
+        foreach($recentMaterials as $material) {
+            $material->subject = $material->subject; // gets relationship instance. change field name to something else ?
+            $material->categories = auth()->user()->categories()->whereIn('id', explode(",", $material->categories))->get();
+            // TODO change to created at
+            $material->visited_at = \Carbon\Carbon::parse($material->visited_at)->shortRelativeToNowDiffForHumans();
+        }
+
+        return response()->json([
+            'subjects' => $subjects,
+            'recentMaterials' => $recentMaterials
+        ]);
     }
 
     /**
@@ -60,7 +72,7 @@ class MaterialController extends Controller
     public function show(Material $material)
     {
         $material = $this->materialService->show($material);
-        return View('material.show')->with('material', $material);
+        return response()->json($material);
     }
 
     /**

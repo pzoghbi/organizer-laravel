@@ -23,9 +23,7 @@
     @foreach($tasks as $task)
         <div class="row border rounded-3 p-3 mb-3 shadow {{ $task->active ? 'bg-light' : 'bg-success'}}">
             <h3 class="h3">{{ $task->title }}</h3>
-            <p class="mb-0">
-                {{ $task->details }}
-            </p>
+            <p class="mb-0">{{ $task->details }}</p>
 
             <div class="row mb-2">
                 <span class="fs-3 w-auto">{{  date_format(date_create($task->datetime), 'd.m. \@ h:i A') }}</span>

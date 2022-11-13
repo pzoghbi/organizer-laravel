@@ -5,6 +5,7 @@ namespace App\Services;
 
 use App\Models\Material;
 use App\Models\Subject;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class MaterialService
@@ -18,6 +19,10 @@ class MaterialService
     {
         $material_groups = Material::where('user_id', auth()->id())->pluck('subject_id')->toArray();
         return Subject::where('user_id', auth()->id())->whereIn('id', $material_groups)->get();
+    }
+
+    public function getRecentMaterials(){
+        return auth()->user()->recentMaterials();
     }
 
     public function listBySubject($subject_id)
@@ -47,7 +52,7 @@ class MaterialService
         $material = new Material();
 
         // todo make file upload optional
-
+        Log::debug($data);
         // Permanent data
         $material->user_id = auth()->id();
         $file = $data['file'];
@@ -61,6 +66,7 @@ class MaterialService
         $material->categories = implode(",", isset($data['categories']) ? $data['categories'] : []);
         $this->updateLastVisited($material);
 
+        Log::debug($material);
         $material->save();
     }
 

@@ -20,7 +20,8 @@ class SubjectController extends Controller
 
     public function index()
     {
-        return View('subject.index');
+        $subjects = $this->subjectService->index();
+        return response()->json($subjects);
     }
 
     public function create()

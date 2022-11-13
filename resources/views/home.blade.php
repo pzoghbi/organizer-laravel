@@ -4,7 +4,7 @@
     <h1 class="h3 text-secondary mb-3 text-light">{{ __('Overview') }}</h1>
 
     <div class="row mb-4">
-        <!-- Schedule -->
+        <!-- ScheduleListItem -->
         <div class="col-lg-8 col-md-12 mb-lg-0 mb-4">
             <div class="card shadow h-100">
                 <div class="card-header">
@@ -13,19 +13,13 @@
                         @if($schedule)
                             <a class="ms-auto btn-sm text-decoration-none link-secondary"
                                href="{{ route('schedule.edit', $schedule) }}"
-                               title="Click here to edit this schedule"><i
-                                    class="bi bi-pencil-square"></i></a>
+                               title="Click here to edit this schedule">
+                                <i class="bi bi-pencil-square"></i></a>
                         @endif
                     </div>
                 </div>
 
                 <div class="card-body p-0">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
                     @if(!$schedule && !auth()->user()->schedules)
                         Looks like you don't have an active schedule!
                         <a class="" href="{{ route('schedule.index') }}">Activate one here.</a>
@@ -53,13 +47,11 @@
                                                         @foreach($lecture_group as $lecture)
                                                             <tr>
                                                                 <td class="p-0">
-                                                                    <a
-                                                                        class="p-2 gap-1 h-100 w-100 d-block text-decoration-none rounded-0 border-0 text-start text-dark btn btn-outline-light"
+                                                                    <a class="p-2 gap-1 h-100 w-100 d-block text-decoration-none rounded-0 border-0 text-start text-dark btn btn-outline-light"
                                                                         href="{{ route('lecture.edit', $lecture) }}">
                                                                         <div class="d-flex">
                                                                             <strong>{{ $lecture->subject->name }}</strong>
-                                                                            <strong class="ms-auto"
-                                                                                    title="Room">{{ $lecture->room }}</strong>
+                                                                            <strong class="ms-auto" title="Room">{{ $lecture->room }}</strong>
                                                                         </div>
                                                                         <span>{{ date('H:i', strtotime($lecture->start)) }}-{{ date('G:i', strtotime($lecture->end)) }}</span>
                                                                     </a>

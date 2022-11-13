@@ -8,6 +8,12 @@ use App\Models\Subject;
 
 class SubjectService
 {
+    public function index()
+    {
+        $subjects = auth()->user()->subjects()->get();
+        return $subjects;
+    }
+
     public function store($data)
     {
         $subject = new Subject();

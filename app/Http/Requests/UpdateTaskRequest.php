@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Subject;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class UpdateTaskRequest extends FormRequest
@@ -27,11 +28,12 @@ class UpdateTaskRequest extends FormRequest
     {
         $my_subjects = Subject::where('user_id', auth()->user()->id)->pluck('id')->all();
         $task_types = ['assignment', 'exam', 'reminder'];
-
+        Log::debug('update task: ');
+        Log::debug(request()->all());
         return [
             'title' => 'required | max:256',
             'details' => 'nullable | max:1024',
-            'type' => [Rule::in($task_types)            ],
+            'type' => [Rule::in($task_types)],
             'subject_id' => ['required', Rule::in($my_subjects)],
             'datetime' => 'required | after_or_equal:today'
         ];

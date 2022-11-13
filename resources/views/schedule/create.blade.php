@@ -5,7 +5,7 @@
     <form action="{{ route('schedule.store') }}" method="post">
         @csrf
         <div class="input-group mb-3">
-            <label class="input-group-text" for="schedule-name">Schedule name</label>
+            <label class="input-group-text" for="schedule-name">ScheduleListItem name</label>
             <input class="form-control me-3" id="schedule-name" name="name" required type="text">
 
             <label for="schedule-start" class="input-group-text">Start date</label>

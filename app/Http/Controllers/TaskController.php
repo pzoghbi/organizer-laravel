@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
-use App\Models\Subject;
 use App\Models\Task;
 use App\Notifications\TaskReminder;
 use App\Services\TaskService;
 use DateTimeZone;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
@@ -24,8 +22,12 @@ class TaskController extends Controller
 
     public function index(Request $request)
     {
+        Log::debug('Task Index');
         $tasks = $this->taskService->index($request->query('span', 'default'));
-        return View('task.index')->with('tasks', $tasks);
+        foreach($tasks as $task) {
+            $task->subject = $task->subject()->first();
+        }
+        return response()->json($tasks);
     }
 
     public function create()
@@ -35,14 +37,15 @@ class TaskController extends Controller
 
     public function store(CreateTaskRequest $request)
     {
+        Log::debug('Task Store');
         $this->taskService->store($request->validated());
-        return redirect()->route('task.index');
+        return response()->json(['status' => 200]);
     }
 
     public function show(Task $task)
     {
         $task = $this->taskService->show($task);
-        return View('task.show')->with('task', $task);
+        return response()->json($task);
     }
 
     public function edit(Task $task)
@@ -53,20 +56,14 @@ class TaskController extends Controller
 
     public function update(Task $task, UpdateTaskRequest $request)
     {
-        $this->taskService->update($task, $request->validated());
-        return redirect()->route('task.index');
-    }
-
-    public function delete(Task $task)
-    {
-        $task = $this->taskService->delete($task);
-        return View('task.delete')->with('task', $task);
+        $update = $this->taskService->update($task, $request->validated());
+        return response()->json([], $update ? 200 : 404);
     }
 
     public function destroy(Task $task)
     {
-        $this->taskService->destroy($task);
-        return redirect()->route('task.index');
+        $count = $this->taskService->destroy($task);
+        return response()->json([], $count ? 200 : 404);
     }
 
     public function complete(Task $task)
